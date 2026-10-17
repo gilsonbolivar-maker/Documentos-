@@ -187,6 +187,8 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
   const $ = id => document.getElementById(id);
   const F = ['emissao','nome1','turno1','mat1','dia1','h1a','h1b','nome2','turno2','mat2','dia2','h2a','h2b','turno3','just','fone'];
   const KEY = 'troca-turno-cobepm';
+  const OUTRO = ['nome2','mat2','turno2'];
+  const mesmo = () => $('mesmo').checked;
 
   // Escala de turnos (ciclo de 12 dias, grupos A–E; 0 = 00h–08h, 8 = 08h–16h, 16 = 16h–24h, F = folga)
   // Fonte: app "Escala de Turnos" (agenda GB), base 20/08/2025
@@ -220,8 +222,6 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
 
   function isoToday(){ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10); }
   const br = iso => iso ? iso.split('-').reverse().join('/') : '';
-  const OUTRO = ['nome2','mat2','turno2'];
-  const mesmo = () => $('mesmo').checked;
   const v = k => (mesmo() && OUTRO.includes(k)) ? 'O MESMO' : ($(k).value || '').trim();
   const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const U = (s, w) => s ? '<u>'+esc(s)+'</u>' : '<span class="blank" style="min-width:'+(w||60)+'px"></span>';
