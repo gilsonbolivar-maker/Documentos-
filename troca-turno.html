@@ -55,6 +55,9 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
 .hint{font-size:.82rem;color:var(--muted);margin:0}
 .copybox{display:flex;gap:8px;align-items:stretch}
 .copybox textarea{min-height:70px;font-size:.85rem}
+.check{flex-direction:row;align-items:center;gap:8px;font-size:.92rem;color:var(--fg);cursor:pointer}
+.check input{width:20px;height:20px;flex:none;accent-color:var(--accent)}
+.check small{color:var(--muted)}
 /* escala */
 .shifts{display:flex;gap:6px;flex-wrap:wrap}
 .shifts button{font-family:var(--f-mono);font-size:.8rem;font-weight:500;padding:6px 10px;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:999px}
@@ -114,6 +117,7 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
 
     <p class="sub">Colega que vai trocar com você</p>
     <div class="grid">
+      <label class="c6 check"><input type="checkbox" id="mesmo" name="mesmo"> Trocar comigo mesmo <small>(preenche “O MESMO”)</small></label>
       <label class="c6">Nome completo<input id="nome2" name="nome2" placeholder="Ex.: Maria Souza"></label>
       <label class="c2">Turno<select id="turno2" name="turno2"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label>
       <label class="c2">Matrícula<input id="mat2" name="mat2" class="mono" inputmode="numeric" placeholder="000000"></label>
@@ -207,12 +211,18 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) {}
   F.forEach(k => { if (saved[k]) $(k).value = saved[k]; });
+  $('mesmo').checked = !!saved.mesmo;
+  function syncMesmo(){ OUTRO.forEach(k => { $(k).disabled = mesmo(); }); $('nome2').placeholder = mesmo() ? 'O MESMO' : 'Ex.: Maria Souza'; }
+  syncMesmo();
+  $('mesmo').addEventListener('change', () => { syncMesmo(); render(); persist(); });
   if (!$('emissao').value) $('emissao').value = isoToday();
-  function persist(){ try { const o={}; F.forEach(k=>o[k]=$(k).value); localStorage.setItem(KEY, JSON.stringify(o)); } catch(e) {} }
+  function persist(){ try { const o={mesmo:$('mesmo').checked}; F.forEach(k=>o[k]=$(k).value); localStorage.setItem(KEY, JSON.stringify(o)); } catch(e) {} }
 
   function isoToday(){ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10); }
   const br = iso => iso ? iso.split('-').reverse().join('/') : '';
-  const v = k => ($(k).value || '').trim();
+  const OUTRO = ['nome2','mat2','turno2'];
+  const mesmo = () => $('mesmo').checked;
+  const v = k => (mesmo() && OUTRO.includes(k)) ? 'O MESMO' : ($(k).value || '').trim();
   const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const U = (s, w) => s ? '<u>'+esc(s)+'</u>' : '<span class="blank" style="min-width:'+(w||60)+'px"></span>';
 
@@ -240,7 +250,7 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
       const folga = G.filter((g,i) => p[i]==='F');
       let t = 'De folga (podem cobrir): <b>'+folga.join(', ')+'</b>.';
       if (v('turno1') && v('turno1') !== ativo) t += ' <span class="bad">Seu grupo ('+v('turno1')+') não está nesse horário: '+(p[G.indexOf(v('turno1'))]==='F'?'está de folga':'trabalha '+SHL[p[G.indexOf(v('turno1'))]])+'.</span>';
-      if (v('turno2') && p[G.indexOf(v('turno2'))] !== 'F') t += ' <span class="bad">O grupo do colega ('+v('turno2')+') trabalha '+SHL[p[G.indexOf(v('turno2'))]]+' nesse dia.</span>';
+      if (!mesmo() && v('turno2') && p[G.indexOf(v('turno2'))] !== 'F') t += ' <span class="bad">O grupo do colega ('+v('turno2')+') trabalha '+SHL[p[G.indexOf(v('turno2'))]]+' nesse dia.</span>';
       return t;
     });
     painel($('esc2'), v('dia2'), v('h2a'), (p,ativo) => {
@@ -297,6 +307,7 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
   $('limpar').addEventListener('click', () => {
     F.forEach(k => { if (k!=='fone') $(k).value=''; });
     Object.keys(manual).forEach(k => delete manual[k]);
+    $('mesmo').checked = false; syncMesmo();
     $('emissao').value = isoToday(); render(); persist();
   });
 
