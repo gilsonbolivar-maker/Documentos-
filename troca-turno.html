@@ -1,0 +1,354 @@
+<title>Troca de Turno COBEP.M</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* Layout: coluna única de formulário em etapas (Preencher → PDF → gov.br → WhatsApp), com prévia em papel */
+:root{
+  --bg:#eef0f2; --surface:#ffffff; --paper:#fdfdfb; --fg:#1b232c; --muted:#5b6672; --line:#cfd5db;
+  --accent:#23466b; --accent-fg:#ffffff; --govbr:#1351b4; --wa:#1a8f4e; --warn:#a15c00; --warn-bg:#fff3df; --ok:#1a7a46;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --surface:#1a2129; --paper:#202832; --fg:#e6eaee; --muted:#9aa5b1; --line:#334050;
+  --accent:#8db6e0; --accent-fg:#0f1a26; --govbr:#6f9ff0; --wa:#45c47f; --warn:#f0b35c; --warn-bg:#3a2a12; --ok:#56c98a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --surface:#1a2129; --paper:#202832; --fg:#e6eaee; --muted:#9aa5b1; --line:#334050;
+  --accent:#8db6e0; --accent-fg:#0f1a26; --govbr:#6f9ff0; --wa:#45c47f; --warn:#f0b35c; --warn-bg:#3a2a12; --ok:#56c98a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header h1{font-family:var(--f-display);font-weight:700;font-size:1.75rem;letter-spacing:.01em;margin:0;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted)}
+.code{font-family:var(--f-mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.steps span{font-size:.8rem;padding:3px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+.steps b{font-family:var(--f-mono);margin-right:4px;color:var(--fg)}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px}
+section.card h2{font-family:var(--f-display);font-weight:600;font-size:1.15rem;margin:0;display:flex;align-items:center;gap:10px}
+.num{font-family:var(--f-mono);font-size:.8rem;width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;background:var(--accent);color:var(--accent-fg);flex:none}
+.sub{font-family:var(--f-display);font-size:.78rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:4px 0 -4px}
+.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.c6{grid-column:span 6}.c4{grid-column:span 4}.c3{grid-column:span 3}.c2{grid-column:span 2}
+@media (max-width:560px){.c4,.c3{grid-column:span 6}.c2{grid-column:span 3}}
+label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 10px;width:100%;min-width:0}
+input.mono{font-family:var(--f-mono)}
+textarea{resize:vertical;min-height:84px}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.x{display:flex;align-items:end;gap:8px}.x>span{padding-bottom:10px;font-family:var(--f-mono);color:var(--muted)}
+.alert{font-size:.85rem;padding:9px 12px;border-radius:6px;background:var(--warn-bg);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent)}
+.okmsg{color:var(--ok);font-size:.88rem}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button,.btn{font:inherit;font-weight:600;font-size:.95rem;border:0;border-radius:8px;padding:11px 16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-fg)}
+button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.gov{background:var(--govbr);color:#fff}
+.btn.wa,button.wa{background:var(--wa);color:#fff}
+:root[data-theme="dark"] .btn.gov,:root[data-theme="dark"] .btn.wa{color:#0e141a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.gov,:root:not([data-theme="light"]) .btn.wa,:root:not([data-theme="light"]) button.wa{color:#0e141a}}
+button:disabled{opacity:.5;cursor:not-allowed}
+ol.howto{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
+.hint{font-size:.82rem;color:var(--muted);margin:0}
+.copybox{display:flex;gap:8px;align-items:stretch}
+.copybox textarea{min-height:70px;font-size:.85rem}
+/* prévia em papel */
+.paper{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:22px 20px;font-family:"Times New Roman",Times,serif;font-size:14px;line-height:2;overflow-wrap:anywhere}
+.paper h3{font-family:inherit;text-align:center;margin:0 0 8px;font-size:15px}
+.paper u{text-decoration:none;border-bottom:1px solid var(--fg);padding:0 4px;font-family:var(--f-mono);font-size:12.5px;color:var(--accent)}
+.paper .blank{display:inline-block;min-width:60px;border-bottom:1px solid var(--muted)}
+.paper .just{border:1px solid var(--fg);padding:6px 10px;margin-top:8px;line-height:1.6}
+@media (prefers-reduced-motion:no-preference){button,.btn{transition:filter .15s}button:hover,.btn:hover{filter:brightness(1.08)}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="code">Formulário COBEP.M</div>
+    <h1>Troca de Horário de Turno</h1>
+    <p>Preencha, gere o PDF, assine com sua conta gov.br e envie pelo WhatsApp.</p>
+    <div class="steps"><span><b>1</b>Preencher</span><span><b>2</b>Gerar PDF</span><span><b>3</b>Assinar gov.br</span><span><b>4</b>Enviar</span></div>
+  </header>
+
+  <form id="f" autocomplete="on">
+  <section class="card">
+    <h2><span class="num">1</span>Preencher a ficha</h2>
+
+    <div class="grid">
+      <label class="c3">Data de emissão<input type="date" id="emissao" name="emissao"></label>
+    </div>
+
+    <p class="sub">Solicitante (você)</p>
+    <div class="grid">
+      <label class="c6">Nome completo<input id="nome1" name="nome1" placeholder="Ex.: João da Silva" autocomplete="name"></label>
+      <label class="c2">Turno<input id="turno1" name="turno1" list="turnos" placeholder="A"></label>
+      <label class="c2">Matrícula<input id="mat1" name="mat1" class="mono" inputmode="numeric" placeholder="000000"></label>
+    </div>
+
+    <p class="sub">Dia da troca</p>
+    <div class="grid">
+      <label class="c2">Dia<input type="date" id="dia1" name="dia1"></label>
+      <div class="c4 x">
+        <label style="flex:1">Horário de<input type="time" id="h1a" name="h1a" class="mono"></label><span>X</span>
+        <label style="flex:1">até<input type="time" id="h1b" name="h1b" class="mono"></label>
+      </div>
+    </div>
+
+    <p class="sub">Colega que vai trocar com você</p>
+    <div class="grid">
+      <label class="c6">Nome completo<input id="nome2" name="nome2" placeholder="Ex.: Maria Souza"></label>
+      <label class="c2">Turno<input id="turno2" name="turno2" list="turnos" placeholder="B"></label>
+      <label class="c2">Matrícula<input id="mat2" name="mat2" class="mono" inputmode="numeric" placeholder="000000"></label>
+    </div>
+
+    <p class="sub">Reposição da troca</p>
+    <div class="grid">
+      <label class="c2">Dia<input type="date" id="dia2" name="dia2"></label>
+      <div class="c4 x">
+        <label style="flex:1">Horário de<input type="time" id="h2a" name="h2a" class="mono"></label><span>X</span>
+        <label style="flex:1">até<input type="time" id="h2b" name="h2b" class="mono"></label>
+      </div>
+      <label class="c2">No turno<input id="turno3" name="turno3" list="turnos" placeholder="A"></label>
+    </div>
+
+    <label>Justificativa<textarea id="just" name="just" maxlength="400" placeholder="Ex.: Compromisso médico agendado."></textarea></label>
+    <datalist id="turnos"><option value="A"><option value="B"><option value="C"><option value="D"><option value="E"></datalist>
+
+    <div id="aviso48" class="alert" hidden></div>
+  </section>
+  </form>
+
+  <section class="card">
+    <h2><span class="num">2</span>Conferir e gerar o PDF</h2>
+    <div class="paper" id="preview" aria-live="polite"></div>
+    <div class="row">
+      <button type="button" id="gerar">Gerar e salvar PDF</button>
+      <button type="button" class="ghost" id="limpar">Limpar ficha</button>
+    </div>
+    <p class="hint" id="pdfmsg">O PDF sai no formato da ficha original, com as linhas de assinatura em branco.</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>Assinar com gov.br</h2>
+    <ol class="howto">
+      <li>Abra o <b>Assinador gov.br</b> pelo botão abaixo e entre com sua conta gov.br (nível <b>prata ou ouro</b>).</li>
+      <li>Envie o PDF que você salvou no passo 2.</li>
+      <li>Posicione a assinatura sobre a linha <b>“Ass. Solicitante”</b> e confirme com o código enviado ao app gov.br.</li>
+      <li>Baixe o <b>PDF assinado</b>.</li>
+    </ol>
+    <div class="row"><a class="btn gov" href="https://assinador.iti.br/" target="_blank" rel="noopener">Abrir Assinador gov.br ↗</a></div>
+    <p class="hint">O colega e os supervisores podem assinar o mesmo arquivo depois, também pelo gov.br.</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">4</span>Enviar pelo WhatsApp</h2>
+    <div class="grid">
+      <label class="c3">WhatsApp do destinatário (opcional)<input id="fone" name="fone" type="tel" class="mono" inputmode="tel" placeholder="(24) 99999-9999"></label>
+    </div>
+    <div class="row">
+      <label class="btn wa" for="assinado" style="flex-direction:row;color:inherit" id="lblAssinado" hidden>Escolher PDF assinado e compartilhar</label>
+      <input type="file" id="assinado" accept="application/pdf" hidden>
+      <a class="btn wa" id="walink" href="https://wa.me/" target="_blank" rel="noopener">Abrir conversa no WhatsApp ↗</a>
+    </div>
+    <p class="hint" id="wamsg">Na conversa, toque no clipe 📎 → <b>Documento</b> e anexe o PDF assinado.</p>
+    <p class="sub">Mensagem pronta</p>
+    <div class="copybox">
+      <textarea id="msg" readonly></textarea>
+      <button type="button" class="ghost" id="copiar">Copiar</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const F = ['emissao','nome1','turno1','mat1','dia1','h1a','h1b','nome2','turno2','mat2','dia2','h2a','h2b','turno3','just','fone'];
+  const KEY = 'troca-turno-cobepm';
+
+  // rascunho local
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) {}
+  F.forEach(k => { if (saved[k]) $(k).value = saved[k]; });
+  if (!$('emissao').value) $('emissao').value = isoToday();
+  function persist(){ try { const o={}; F.forEach(k=>o[k]=$(k).value); localStorage.setItem(KEY, JSON.stringify(o)); } catch(e) {} }
+
+  function isoToday(){ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10); }
+  const br = iso => iso ? iso.split('-').reverse().join('/') : '';
+  const v = k => ($(k).value || '').trim();
+  const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const U = (s, w) => s ? '<u>'+esc(s)+'</u>' : '<span class="blank" style="min-width:'+(w||60)+'px"></span>';
+
+  function render(){
+    $('preview').innerHTML =
+      '<h3>TROCA DE HORÁRIO DE TURNO - COBEP.M</h3>' +
+      'Data de emissão: '+U(br(v('emissao')),80)+' &nbsp; Data de recebimento pela coordenação: <span class="blank" style="min-width:80px"></span><br>' +
+      'Eu, '+U(v('nome1'),180)+' do Turno '+U(v('turno1'),30)+', mat. '+U(v('mat1'),60)+' solicito previamente para o dia '+U(br(v('dia1')),80)+
+      ' no Horário de '+U(v('h1a'),45)+' X '+U(v('h1b'),45)+' uma troca de Horário com '+U(v('nome2'),180)+' do Turno '+U(v('turno2'),30)+
+      ', mat. '+U(v('mat2'),60)+' para repor a troca no dia '+U(br(v('dia2')),80)+' no Horário de '+U(v('h2a'),45)+' X '+U(v('h2b'),45)+
+      ', no turno '+U(v('turno3'),30)+'.' +
+      '<div class="just"><b>Justificativa:</b> '+esc(v('just'))+'</div>';
+
+    // aviso de 48 h
+    const a = $('aviso48');
+    if (v('dia1')) {
+      const t = new Date(v('dia1')+'T'+(v('h1a')||'00:00'));
+      const h = (t - new Date())/36e5;
+      if (h < 48) { a.hidden=false; a.textContent = h < 0 ? 'A data da troca já passou. Confira o dia.' : 'Atenção: faltam menos de 48 horas para a troca. A ficha pede no mínimo 48 h de antecedência.'; }
+      else a.hidden = true;
+    } else a.hidden = true;
+
+    // mensagem WhatsApp
+    const msg = 'Olá! Segue a ficha de *Troca de Horário de Turno (COBEP.M)* assinada via gov.br.\n' +
+      'Solicitante: '+(v('nome1')||'—')+' (mat. '+(v('mat1')||'—')+', turno '+(v('turno1')||'—')+')\n' +
+      'Troca: '+(br(v('dia1'))||'—')+' das '+(v('h1a')||'—')+' às '+(v('h1b')||'—')+' com '+(v('nome2')||'—')+'\n' +
+      'Reposição: '+(br(v('dia2'))||'—')+' das '+(v('h2a')||'—')+' às '+(v('h2b')||'—');
+    $('msg').value = msg;
+    let fone = v('fone').replace(/\D/g,'');
+    if (fone && fone.length <= 11) fone = '55'+fone;
+    $('walink').href = 'https://wa.me/'+fone+'?text='+encodeURIComponent(msg);
+  }
+
+  F.forEach(k => $(k).addEventListener('input', () => { render(); persist(); }));
+  render();
+
+  $('limpar').addEventListener('click', () => {
+    F.forEach(k => { if (k!=='fone') $(k).value=''; });
+    $('emissao').value = isoToday(); render(); persist();
+  });
+
+  // ---------- PDF ----------
+  function buildPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({unit:'mm', format:'a4'});
+    const L = 20, R = 190, W = R-L;
+    doc.setFont('times','bold'); doc.setFontSize(14);
+    doc.text('TROCA DE HORÁRIO DE TURNO - COBEP.M', 105, 28, {align:'center'});
+
+    doc.setFontSize(11.5);
+    // desenha uma linha de segmentos: strings = texto fixo; {v,w} = campo sublinhado (w='fill' ocupa o restante)
+    function line(y, segs){
+      doc.setFont('times','normal');
+      let fixed = 0, fills = 0;
+      segs.forEach(s => { if (typeof s==='string') fixed += doc.getTextWidth(s); else if (s.w==='fill') fills++; else fixed += s.w; });
+      const fillW = fills ? Math.max(20,(W-fixed)/fills) : 0;
+      let x = L;
+      segs.forEach(s => {
+        if (typeof s==='string'){ doc.setFont('times','normal'); doc.text(s, x, y); x += doc.getTextWidth(s); return; }
+        const w = s.w==='fill' ? fillW : s.w;
+        doc.setLineWidth(0.2); doc.line(x+0.5, y+1.2, x+w-0.5, y+1.2);
+        if (s.v){
+          doc.setFont('helvetica','bold'); let fs = 10.5; doc.setFontSize(fs);
+          while (doc.getTextWidth(s.v) > w-2 && fs > 6){ fs -= 0.5; doc.setFontSize(fs); }
+          doc.text(s.v, x + w/2, y, {align:'center'}); doc.setFontSize(11.5);
+        }
+        x += w;
+      });
+    }
+    let y = 44; const lh = 10;
+    line(y, ['Data de emissão: ', {v:br(v('emissao')), w:28}, '      Data de recebimento pela coordenação: ', {v:'', w:'fill'}]); y+=lh;
+    line(y, ['Eu, ', {v:v('nome1'), w:'fill'}, ' do Turno ', {v:v('turno1'), w:12}, ', mat. ', {v:v('mat1'), w:24}, ' solicito']); y+=lh;
+    line(y, ['previamente para o dia ', {v:br(v('dia1')), w:28}, ' no Horário de ', {v:v('h1a'), w:17}, ' X ', {v:v('h1b'), w:17}, ' uma troca']); y+=lh;
+    line(y, ['de Horário com ', {v:v('nome2'), w:'fill'}, ' do Turno ', {v:v('turno2'), w:12}, ', mat. ', {v:v('mat2'), w:24}, ' para repor a']); y+=lh;
+    line(y, ['troca no dia ', {v:br(v('dia2')), w:28}, ' no Horário de ', {v:v('h2a'), w:17}, ' X ', {v:v('h2b'), w:17}, ', no turno ', {v:v('turno3'), w:14}, '.']); y+=lh-2;
+
+    // Justificativa
+    const boxY = y, boxH = 34;
+    doc.setLineWidth(0.4); doc.rect(L, boxY, W, boxH);
+    doc.setFont('times','bold'); doc.text('Justificativa:', L+3, boxY+7);
+    doc.setLineWidth(0.15);
+    const off = doc.getTextWidth('Justificativa: ')+3;
+    [7,16,25].forEach((dy,i) => doc.line(L+(i?3:off), boxY+dy+1.2, R-3, boxY+dy+1.2));
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    const first = doc.splitTextToSize(v('just'), W-off-6);
+    let rest = [];
+    if (first.length > 1){ rest = doc.splitTextToSize(first.slice(1).join(' '), W-6); }
+    if (first[0]) doc.text(first[0], L+off, boxY+7);
+    rest.slice(0,2).forEach((t,i) => doc.text(t, L+3, boxY+16+i*9));
+    doc.setFontSize(11.5);
+
+    // assinaturas
+    function sig(cx, yy, label){
+      doc.setLineWidth(0.2); doc.line(cx-38, yy, cx+38, yy);
+      doc.setFont('times','normal'); doc.text(label, cx, yy+5, {align:'center'});
+    }
+    y = boxY + boxH + 26;
+    sig(62, y, 'Ass. Solicitante'); sig(148, y, 'Ass. Solicitado');
+    doc.setFontSize(9); doc.setFont('helvetica','normal');
+    if (v('nome1')) doc.text(v('nome1'), 62, y+10, {align:'center'});
+    if (v('nome2')) doc.text(v('nome2'), 148, y+10, {align:'center'});
+    doc.setFontSize(11.5);
+    y += 30;
+    sig(62, y, 'Ass. Supervisor de Turno do Solicitante'); sig(148, y, 'Ass. Supervisor de Turno do Solicitado');
+    y += 28;
+    sig(105, y, 'Ass. do Supervisor de Produção');
+    y += 18;
+    doc.setFont('times','bold'); doc.setFontSize(10.5);
+    doc.text('OBS: A solicitação deverá ser feita com no mínimo 48 horas de antecedência.', 105, y, {align:'center'});
+    doc.setLineWidth(0.4); doc.line(L, y+8, R, y+8);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(110);
+    doc.text('Documento preenchido eletronicamente. Assinatura digital via gov.br (assinador.iti.br).', 105, y+13, {align:'center'});
+    return doc;
+  }
+
+  function fileName(){
+    const n = (v('nome1')||'solicitante').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+    return 'troca-turno_'+n+'_'+(v('dia1')||isoToday())+'.pdf';
+  }
+
+  // salvar: capacidade "downloads" do Claude, com alternativas fora dele
+  let downloadsP = null;
+  if (window.claude && typeof window.claude.use === 'function') downloadsP = window.claude.use('downloads').catch(() => null);
+  const inClaude = !!downloadsP;
+
+  $('gerar').addEventListener('click', async () => {
+    const msg = $('pdfmsg');
+    const faltam = ['nome1','mat1','dia1','nome2'].filter(k => !v(k));
+    if (faltam.length){ msg.className='hint'; msg.textContent = 'Preencha pelo menos seu nome, matrícula, o dia da troca e o nome do colega.'; return; }
+    if (!window.jspdf){ msg.textContent = 'O gerador de PDF não carregou. Verifique a internet e recarregue a página.'; return; }
+    const doc = buildPDF(); const name = fileName(); const blob = doc.output('blob');
+    try {
+      const dl = downloadsP ? await downloadsP : null;
+      if (dl){
+        await dl.save({filename:name, data:blob});
+        msg.className='okmsg'; msg.textContent = '✓ PDF salvo: '+name+'. Agora assine no passo 3.';
+        return;
+      }
+      if (inClaude){ msg.className='hint'; msg.textContent = 'Salvar arquivos não está disponível nesta visualização. Abra a página no app Claude ou no navegador.'; return; }
+      const file = new File([blob], name, {type:'application/pdf'});
+      if (navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:name});
+      } else {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }
+      msg.className='okmsg'; msg.textContent = '✓ PDF gerado: '+name+'. Agora assine no passo 3.';
+    } catch(e){
+      msg.className='hint';
+      msg.textContent = (e && (e.code==='declined' || e.name==='AbortError')) ? 'Salvamento cancelado. Toque em “Gerar e salvar PDF” para tentar de novo.' : 'Não foi possível salvar o PDF ('+((e&&(e.message||e.code))||'erro')+').';
+    }
+  });
+
+  // compartilhar PDF assinado direto (só fora do Claude, em celulares com Web Share)
+  if (!inClaude && navigator.canShare){
+    try {
+      if (navigator.canShare({files:[new File(['x'],'t.pdf',{type:'application/pdf'})]})){
+        $('lblAssinado').hidden = false;
+        $('wamsg').textContent = 'Escolha o PDF assinado e selecione o WhatsApp na lista de compartilhamento.';
+      }
+    } catch(e) {}
+  }
+  $('assinado').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { await navigator.share({files:[f], text:$('msg').value}); } catch(err) {}
+    e.target.value = '';
+  });
+
+  $('copiar').addEventListener('click', () => {
+    const t = $('msg');
+    const fb = () => { t.focus(); t.select(); };
+    try { navigator.clipboard.writeText(t.value).then(() => { $('copiar').textContent='Copiado ✓'; setTimeout(()=>$('copiar').textContent='Copiar',1800); }, fb); } catch(e){ fb(); }
+  });
+})();
+</script>
