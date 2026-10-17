@@ -55,6 +55,20 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
 .hint{font-size:.82rem;color:var(--muted);margin:0}
 .copybox{display:flex;gap:8px;align-items:stretch}
 .copybox textarea{min-height:70px;font-size:.85rem}
+/* escala */
+.shifts{display:flex;gap:6px;flex-wrap:wrap}
+.shifts button{font-family:var(--f-mono);font-size:.8rem;font-weight:500;padding:6px 10px;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:999px}
+.shifts button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.escala{display:flex;flex-direction:column;gap:6px;font-size:.84rem;color:var(--muted)}
+.escala:empty{display:none}
+.gr{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.g{border:1px solid var(--line);border-radius:6px;padding:5px 4px;text-align:center;font-family:var(--f-mono);font-size:.78rem;line-height:1.3;color:var(--muted)}
+.g b{display:block;font-family:var(--f-display);font-size:1rem;color:var(--fg)}
+.g.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.g.on b{color:var(--accent-fg)}
+.g.f{border-style:dashed}
+.escala .note{color:var(--fg)}
+.escala .bad{color:var(--warn)}
 /* prévia em papel */
 .paper{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:22px 20px;font-family:"Times New Roman",Times,serif;font-size:14px;line-height:2;overflow-wrap:anywhere}
 .paper h3{font-family:inherit;text-align:center;margin:0 0 8px;font-size:15px}
@@ -83,7 +97,7 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
     <p class="sub">Solicitante (você)</p>
     <div class="grid">
       <label class="c6">Nome completo<input id="nome1" name="nome1" placeholder="Ex.: João da Silva" autocomplete="name"></label>
-      <label class="c2">Turno<input id="turno1" name="turno1" list="turnos" placeholder="A"></label>
+      <label class="c2">Turno<select id="turno1" name="turno1"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label>
       <label class="c2">Matrícula<input id="mat1" name="mat1" class="mono" inputmode="numeric" placeholder="000000"></label>
     </div>
 
@@ -94,12 +108,14 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
         <label style="flex:1">Horário de<input type="time" id="h1a" name="h1a" class="mono"></label><span>X</span>
         <label style="flex:1">até<input type="time" id="h1b" name="h1b" class="mono"></label>
       </div>
+      <div class="c6 shifts" data-a="h1a" data-b="h1b"><button type="button" data-s="0">00h–08h</button><button type="button" data-s="8">08h–16h</button><button type="button" data-s="16">16h–24h</button></div>
+      <div class="c6 escala" id="esc1"></div>
     </div>
 
     <p class="sub">Colega que vai trocar com você</p>
     <div class="grid">
       <label class="c6">Nome completo<input id="nome2" name="nome2" placeholder="Ex.: Maria Souza"></label>
-      <label class="c2">Turno<input id="turno2" name="turno2" list="turnos" placeholder="B"></label>
+      <label class="c2">Turno<select id="turno2" name="turno2"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label>
       <label class="c2">Matrícula<input id="mat2" name="mat2" class="mono" inputmode="numeric" placeholder="000000"></label>
     </div>
 
@@ -110,12 +126,13 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
         <label style="flex:1">Horário de<input type="time" id="h2a" name="h2a" class="mono"></label><span>X</span>
         <label style="flex:1">até<input type="time" id="h2b" name="h2b" class="mono"></label>
       </div>
-      <label class="c2">No turno<input id="turno3" name="turno3" list="turnos" placeholder="A"></label>
+      <div class="c6 shifts" data-a="h2a" data-b="h2b"><button type="button" data-s="0">00h–08h</button><button type="button" data-s="8">08h–16h</button><button type="button" data-s="16">16h–24h</button></div>
+      <div class="c6 escala" id="esc2"></div>
+      <label class="c2">No turno (grupo)<select id="turno3" name="turno3"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label>
     </div>
 
     <label>Justificativa<textarea id="just" name="just" maxlength="400" placeholder="Ex.: Compromisso médico agendado."></textarea></label>
-    <datalist id="turnos"><option value="A"><option value="B"><option value="C"><option value="D"><option value="E"></datalist>
-
+    
     <div id="aviso48" class="alert" hidden></div>
   </section>
   </form>
@@ -167,6 +184,25 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
   const F = ['emissao','nome1','turno1','mat1','dia1','h1a','h1b','nome2','turno2','mat2','dia2','h2a','h2b','turno3','just','fone'];
   const KEY = 'troca-turno-cobepm';
 
+  // Escala de turnos (ciclo de 12 dias, grupos A–E; 0 = 00h–08h, 8 = 08h–16h, 16 = 16h–24h, F = folga)
+  // Fonte: app "Escala de Turnos" (agenda GB), base 20/08/2025
+  const CYCLE = [
+    ["0","F","F","8","16"],["F","F","0","8","16"],["F","8","0","16","F"],["F","8","F","16","0"],
+    ["F","8","F","16","0"],["8","16","F","F","0"],["8","16","F","0","F"],["16","F","8","0","F"],
+    ["16","0","8","F","F"],["F","0","16","F","8"],["0","F","16","F","8"],["0","F","16","F","8"]
+  ];
+  const BASE = Date.UTC(2025, 7, 20);
+  const G = ['A','B','C','D','E'];
+  const SH = {'0':['00:00','08:00'], '8':['08:00','16:00'], '16':['16:00','00:00']};
+  const SHL = {'0':'00h–08h','8':'08h–16h','16':'16h–24h'};
+  function escalaDia(iso){
+    const [y,m,d] = iso.split('-').map(Number);
+    const diff = Math.round((Date.UTC(y,m-1,d) - BASE)/864e5);
+    return CYCLE[((diff % 12) + 12) % 12];
+  }
+  const shiftOf = hhmm => { if (!hhmm) return null; const h = +hhmm.slice(0,2); return h < 8 ? '0' : h < 16 ? '8' : '16'; };
+  const grupoEm = (iso, sh) => { const p = escalaDia(iso); return G[p.indexOf(sh)] || null; };
+
   // rascunho local
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) {}
@@ -190,6 +226,33 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
       ', no turno '+U(v('turno3'),30)+'.' +
       '<div class="just"><b>Justificativa:</b> '+esc(v('just'))+'</div>';
 
+    // escala dos dias escolhidos
+    function painel(el, dia, ha, extra){
+      if (!dia){ el.innerHTML=''; return null; }
+      const p = escalaDia(dia), sh = shiftOf(ha), ativo = sh ? G[p.indexOf(sh)] : null;
+      const sem = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][new Date(dia+'T12:00').getDay()];
+      el.innerHTML = '<span>Escala de '+br(dia)+' ('+sem+')</span><div class="gr">' +
+        p.map((s,i) => '<div class="g'+(G[i]===ativo?' on':'')+(s==='F'?' f':'')+'"><b>'+G[i]+'</b>'+(s==='F'?'folga':SHL[s])+'</div>').join('') +
+        '</div>' + (ativo ? '<span class="note">Em atividade no horário escolhido: <b>grupo '+ativo+'</b>.'+(extra?' '+extra(p,ativo):'')+'</span>' : '<span>Escolha o horário para ver o grupo em atividade.</span>');
+      return ativo;
+    }
+    painel($('esc1'), v('dia1'), v('h1a'), (p,ativo) => {
+      const folga = G.filter((g,i) => p[i]==='F');
+      let t = 'De folga (podem cobrir): <b>'+folga.join(', ')+'</b>.';
+      if (v('turno1') && v('turno1') !== ativo) t += ' <span class="bad">Seu grupo ('+v('turno1')+') não está nesse horário: '+(p[G.indexOf(v('turno1'))]==='F'?'está de folga':'trabalha '+SHL[p[G.indexOf(v('turno1'))]])+'.</span>';
+      if (v('turno2') && p[G.indexOf(v('turno2'))] !== 'F') t += ' <span class="bad">O grupo do colega ('+v('turno2')+') trabalha '+SHL[p[G.indexOf(v('turno2'))]]+' nesse dia.</span>';
+      return t;
+    });
+    painel($('esc2'), v('dia2'), v('h2a'), (p,ativo) => {
+      let t = '';
+      if (v('turno1') && p[G.indexOf(v('turno1'))] !== 'F') t += '<span class="bad">Seu grupo ('+v('turno1')+') trabalha '+SHL[p[G.indexOf(v('turno1'))]]+' nesse dia; a reposição costuma ser numa folga sua.</span>';
+      return t;
+    });
+    document.querySelectorAll('.shifts').forEach(box => {
+      const sh = v(box.dataset.a) && SH[shiftOf(v(box.dataset.a))] && SH[shiftOf(v(box.dataset.a))][1]===v(box.dataset.b) ? shiftOf(v(box.dataset.a)) : null;
+      box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.s===sh)));
+    });
+
     // aviso de 48 h
     const a = $('aviso48');
     if (v('dia1')) {
@@ -210,11 +273,30 @@ ol.howto li::marker{font-family:var(--f-mono);color:var(--accent)}
     $('walink').href = 'https://wa.me/'+fone+'?text='+encodeURIComponent(msg);
   }
 
-  F.forEach(k => $(k).addEventListener('input', () => { render(); persist(); }));
+  // preenche o grupo automaticamente a partir da escala (sem sobrescrever escolha manual)
+  const manual = {};
+  ['turno1','turno2','turno3'].forEach(k => $(k).addEventListener('change', () => { manual[k] = !!v(k); }));
+  function auto(){
+    if (v('dia1') && v('h1a')){
+      const g = grupoEm(v('dia1'), shiftOf(v('h1a')));
+      if (g && !manual.turno1) $('turno1').value = g;
+    }
+    if (v('dia2') && v('h2a')){
+      const g = grupoEm(v('dia2'), shiftOf(v('h2a')));
+      if (g && !manual.turno3) $('turno3').value = g;
+    }
+  }
+  F.forEach(k => $(k).addEventListener('input', e => { if (/^(dia|h)[12]/.test(k)) auto(); render(); persist(); }));
+  document.querySelectorAll('.shifts').forEach(box => box.addEventListener('click', e => {
+    const s = e.target.dataset && e.target.dataset.s; if (!s) return;
+    $(box.dataset.a).value = SH[s][0]; $(box.dataset.b).value = SH[s][1];
+    auto(); render(); persist();
+  }));
   render();
 
   $('limpar').addEventListener('click', () => {
     F.forEach(k => { if (k!=='fone') $(k).value=''; });
+    Object.keys(manual).forEach(k => delete manual[k]);
     $('emissao').value = isoToday(); render(); persist();
   });
 
