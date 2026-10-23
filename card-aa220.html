@@ -61,6 +61,19 @@ tr.na td.v{color:var(--mut);font-weight:400;font-style:italic}
 .rot{display:flex;gap:8px;margin-top:10px}
 .rot div{flex:1;background:var(--okbg);border-radius:8px;padding:7px 10px;font-size:13px}
 .rot b{color:var(--gd)}
+.hr{width:100%;border-collapse:collapse;font-size:13.5px}
+.hr th{padding:6px 4px;text-align:center;font-size:12px}
+.hr th:first-child,.hr td:first-child{text-align:left;padding-left:10px}
+.hr td{padding:7px 4px;text-align:center;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.hr td:first-child{font-weight:700;font-size:12.5px;line-height:1.25}
+.hr td:first-child small{display:block;font-weight:500;color:var(--mut);font-family:Consolas,monospace;font-size:10.5px}
+.hr td.na{color:#b5bcc4}
+.hr td.mx{color:var(--red);font-weight:800}
+.hr td.mn{color:#1f5fa8;font-weight:800}
+.hr td.now{background:#eef0fb;font-weight:800}
+.hr td.ext{font-size:12px;color:var(--mut)}
+.hr th:last-child,.hr td:last-child{text-align:center}
+.lg2{font-size:11.5px;color:var(--mut);margin-top:6px}
 </style></head><body>
 <div class="card">
   <div class="hd">
@@ -122,6 +135,16 @@ tr.na td.v{color:var(--mut);font-weight:400;font-style:italic}
       <div class="it h"><div class="n">TQ-2202 Ca(OH)₂ nível</div><div class="val">86,21 <small>%</small></div><span class="st">H</span><div class="tag2">LT-220003</div><div class="tr up">▲ +7,60 desde 21:35</div></div>
       <div class="it ll"><div class="n">Densímetro suspensão</div><div class="val">0,30 <small>kg/l</small></div><span class="st">LL</span><div class="tag2">DT-220003</div><div class="obs">coleta anterior (16h)</div></div>
     </div>
+  </div>
+
+  <div class="sec">
+    <h3>Nível dos tanques — leituras por hora <small>% · 16h a 00h</small></h3>
+    <table class="hr">
+      <tr><th>Tanque</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th><th>21</th><th>22</th><th>23</th><th>00</th><th>Variação</th></tr>
+      <tr><td>TQ-2202 Ca(OH)₂<small>LT-220003 · H</small></td><td class="">65,34</td><td class="">53,30</td><td class="">77,50</td><td class="na">—</td><td class="mn">53,22</td><td class="">78,61</td><td class="mx now">86,21</td><td class="na">—</td><td class="na">—</td><td class="ext">32,99</td></tr>
+      <tr><td>TQ-2205 neutr, 2º<small>LIT-220002 · OK</small></td><td class="">76,75</td><td class="mx">79,17</td><td class="mn">68,52</td><td class="na">—</td><td class="">71,18</td><td class="">72,34</td><td class="now">68,85</td><td class="na">—</td><td class="na">—</td><td class="ext">10,65</td></tr>
+    </table>
+    <div class="lg2"><b style="color:var(--red)">vermelho</b> = maior do período · <b style="color:#1f5fa8">azul</b> = menor · fundo lilás = leitura atual (22h) · — = sem registro</div>
   </div>
 
   <div class="sec">
