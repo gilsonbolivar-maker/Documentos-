@@ -36,6 +36,31 @@ tr.na td.v{color:var(--mut);font-weight:400;font-style:italic}
 .ft .lg span b{margin-right:4px}
 .alert{margin:0 26px 20px;background:#fff7e0;border:1px solid #f1c94a;border-radius:10px;padding:12px 14px;font-size:14px}
 .alert b{color:#8a5a00}
+.sec{padding:4px 26px 18px}
+.sec h3{font-size:16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h3 small{font-size:12px;color:var(--mut);font-weight:500}
+.inst{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.it{border:1px solid var(--line);border-top:4px solid var(--ok);border-radius:10px;padding:8px 8px 9px;text-align:center}
+.it.ll{border-top-color:var(--red);background:#fdf5f5}
+.it.h{border-top-color:#c98a12;background:#fffaf0}
+.it .n{font-size:11.5px;font-weight:700;line-height:1.25;min-height:29px}
+.it .val{font-size:21px;font-weight:800;margin:4px 0 2px}
+.it.ll .val{color:var(--red)}.it.ok .val{color:var(--ok)}.it.h .val{color:#8a5a00}
+.it .val small{font-size:11px;font-weight:600;color:var(--mut)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:1px 9px;border-radius:999px;border:1.5px solid}
+.it.ll .st{background:var(--red);color:#fff;border-color:var(--red)}
+.it.ok .st{color:var(--ok);border-color:var(--ok)}
+.it.h .st{color:#8a5a00;border-color:#c98a12}
+.it .tag2{font-size:10.5px;color:var(--mut);margin-top:4px;font-family:Consolas,monospace}
+.it .obs{font-size:10.5px;color:#b07a12;font-weight:600}
+.it .tr{font-size:11px;font-weight:700;margin-top:2px}
+.tr.dn{color:var(--red)}.tr.up{color:var(--ok)}
+.tl{position:relative;height:30px;background:#f1f3f5;border-radius:8px;margin:6px 0 4px}
+.tl .on{position:absolute;top:0;bottom:0;background:var(--g);border-radius:6px;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mut);font-family:Consolas,monospace}
+.rot{display:flex;gap:8px;margin-top:10px}
+.rot div{flex:1;background:var(--okbg);border-radius:8px;padding:7px 10px;font-size:13px}
+.rot b{color:var(--gd)}
 </style></head><body>
 <div class="card">
   <div class="hd">
@@ -88,9 +113,35 @@ tr.na td.v{color:var(--mut);font-weight:400;font-style:italic}
     </div>
   </div>
 
+  <div class="sec">
+    <h3>Instrumentos de processo <small>leitura das 22h</small></h3>
+    <div class="inst">
+      <div class="it ll"><div class="n">pH suspensão Ca(OH)₂ TQ-2202</div><div class="val">0,00 <small>pH</small></div><span class="st">LL</span><div class="tag2">AIT-220001</div><div class="obs">coleta anterior (16h)</div></div>
+      <div class="it ok"><div class="n">Água proc. TQ-6301B → TQ-2201</div><div class="val">3,66E-3 <small>m³/h</small></div><span class="st">OK</span><div class="tag2">FIT-220003</div><div class="obs">coleta anterior (16h)</div></div>
+      <div class="it ok"><div class="n">TQ-2205 neutralização 2º</div><div class="val">68,85 <small>%</small></div><span class="st">OK</span><div class="tag2">LIT-220002</div><div class="tr dn">▼ −3,49 desde 21:35</div></div>
+      <div class="it h"><div class="n">TQ-2202 Ca(OH)₂ nível</div><div class="val">86,21 <small>%</small></div><span class="st">H</span><div class="tag2">LT-220003</div><div class="tr up">▲ +7,60 desde 21:35</div></div>
+      <div class="it ll"><div class="n">Densímetro suspensão</div><div class="val">0,30 <small>kg/l</small></div><span class="st">LL</span><div class="tag2">DT-220003</div><div class="obs">coleta anterior (16h)</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>Rotativa — períodos ligada <small>total 2h09</small></h3>
+    <div class="tl">
+      <div class="on" style="left:19.6%;width:8.9%">43 min</div>
+      <div class="on" style="left:57.7%;width:17.9%">1h26</div>
+    </div>
+    <div class="ax"><span>16h</span><span>17h</span><span>18h</span><span>19h</span><span>20h</span><span>21h</span><span>22h</span><span>23h</span><span>24h</span></div>
+    <div class="rot">
+      <div>1º período: <b>17h34 → 18h17</b></div>
+      <div>2º período: <b>20h37 → 22h03</b></div>
+    </div>
+  </div>
+
   <div class="alert">
     <b>⚠ Pontos de atenção:</b> pH <b>5,78 às 09h</b> (queda brusca, menor valor do dia) ·
-    pH só conforme às <b>07h (9,38)</b> · densidade <b>subiu até 1,15 (18:18)</b> e <b>caiu para 1,09 (22:22)</b>, o menor valor do dia.
+    pH só conforme às <b>07h (9,38)</b> · densidade <b>subiu até 1,15 (18:18)</b> e <b>caiu para 1,09 (22:22)</b>, o menor valor do dia.<br>
+    · <b>pH suspensão (0,00) e densímetro (0,30) em LL</b>, sem coleta desde 16h: verificar instrumento ou amostragem ·
+    <b>TQ-2202 em nível alto (86,21%)</b> e subindo.
   </div>
 
   <div class="ft">
