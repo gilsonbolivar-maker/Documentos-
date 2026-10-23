@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Card AA-220</title>
+<style>
+:root{--g:#1e7b34;--gd:#14572a;--ink:#1a2340;--red:#c0262d;--redbg:#fdecec;--ok:#1e7b34;--okbg:#e8f5ec;--line:#dfe5e0;--mut:#6b7280}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#eef2ef;font-family:"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);padding:24px}
+.card{width:760px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.12)}
+.hd{background:linear-gradient(120deg,var(--gd),var(--g));color:#fff;padding:20px 26px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:26px;letter-spacing:.5px}
+.hd p{font-size:14px;opacity:.85;margin-top:2px}
+.tag{background:#fff;color:var(--gd);font-weight:800;padding:6px 14px;border-radius:999px;font-size:15px}
+.body{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;padding:22px 26px}
+.blk h2{font-size:18px;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.blk h2 small{font-size:12px;color:#c2552b;font-weight:700}
+.blk .sub{font-size:13px;color:var(--mut);margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{background:var(--g);color:#fff;font-weight:600;padding:7px 10px;text-align:left;font-size:13px}
+th:last-child,td:last-child{text-align:right}
+td{padding:6px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+td.v{font-weight:700}
+tr.out td.v{color:var(--red)}
+tr.out td.v::before{content:"● ";font-size:10px}
+tr.ok td.v{color:var(--ok)}
+tr.ok td.v::before{content:"✔ ";font-size:11px}
+tr.na td.v{color:var(--mut);font-weight:400;font-style:italic}
+.kpis{display:flex;gap:8px;margin-top:12px}
+.k{flex:1;border-radius:10px;padding:8px 10px;text-align:center}
+.k b{display:block;font-size:20px}
+.k span{font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.k.r{background:var(--redbg);color:var(--red)}
+.k.g{background:var(--okbg);color:var(--ok)}
+.k.n{background:#f1f3f5;color:var(--mut)}
+.trend{margin-top:12px;background:var(--redbg);border-left:4px solid var(--red);padding:10px 12px;border-radius:6px;font-size:13.5px}
+.ft{border-top:1px solid var(--line);padding:14px 26px;font-size:13px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.ft .lg{display:flex;gap:14px}
+.ft .lg span b{margin-right:4px}
+.alert{margin:0 26px 20px;background:#fff7e0;border:1px solid #f1c94a;border-radius:10px;padding:12px 14px;font-size:14px}
+.alert b{color:#8a5a00}
+</style></head><body>
+<div class="card">
+  <div class="hd">
+    <div><h1>Resultados das Análises</h1><p>Laboratório → Operação · F4</p></div>
+    <div class="tag">AA-220</div>
+  </div>
+
+  <div class="body">
+    <div class="blk">
+      <h2>AP 2203 · pH <small>Pto-35</small></h2>
+      <div class="sub">Coletas a cada 2 h</div>
+      <table>
+        <tr><th>Horário</th><th>pH</th></tr>
+        <tr class="out"><td>01h00</td><td class="v">8,60</td></tr>
+        <tr class="na"><td>03h00</td><td class="v">sem análise</td></tr>
+        <tr class="out"><td>05h00</td><td class="v">8,23</td></tr>
+        <tr class="ok"><td>07h00</td><td class="v">9,38</td></tr>
+        <tr class="out"><td>09h00</td><td class="v">5,78</td></tr>
+        <tr class="out"><td>11h00</td><td class="v">8,51</td></tr>
+        <tr class="out"><td>13h00</td><td class="v">7,74</td></tr>
+        <tr class="out"><td>15h00</td><td class="v">8,85</td></tr>
+        <tr class="out"><td>17h00</td><td class="v">8,48</td></tr>
+        <tr class="out"><td>19h00</td><td class="v">8,74</td></tr>
+        <tr class="out"><td>21h00</td><td class="v">8,07</td></tr>
+        <tr class="na"><td>23h00</td><td class="v">pendente</td></tr>
+      </table>
+      <div class="kpis">
+        <div class="k r"><b>9</b><span>Fora</span></div>
+        <div class="k g"><b>1</b><span>OK</span></div>
+        <div class="k n"><b>2</b><span>S/ dado</span></div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h2>AP 2204 · Densidade <small>Pto-36</small></h2>
+      <div class="sub">g/cm³</div>
+      <table>
+        <tr><th>Horário</th><th>Densidade</th></tr>
+        <tr class="ok"><td>00:47</td><td class="v">1,12</td></tr>
+        <tr class="out"><td>05:02</td><td class="v">1,13</td></tr>
+        <tr class="out"><td>09:34</td><td class="v">1,14</td></tr>
+        <tr class="out"><td>18:18</td><td class="v">1,15</td></tr>
+      </table>
+      <div class="kpis">
+        <div class="k r"><b>3</b><span>Fora</span></div>
+        <div class="k g"><b>1</b><span>OK</span></div>
+      </div>
+      <div class="trend"><b>Tendência de alta contínua:</b><br>1,12 → 1,13 → 1,14 → 1,15</div>
+    </div>
+  </div>
+
+  <div class="alert">
+    <b>⚠ Pontos de atenção:</b> pH <b>5,78 às 09h</b> (queda brusca, menor valor do dia) ·
+    pH só conforme às <b>07h (9,38)</b> · densidade <b>subindo desde 05h</b>.
+  </div>
+
+  <div class="ft">
+    <div class="lg">
+      <span><b style="color:var(--red)">●</b>Fora da especificação</span>
+      <span><b style="color:var(--ok)">✔</b>Dentro</span>
+    </div>
+    <span style="margin-left:auto;color:var(--mut)">Data/turno: ____________</span>
+  </div>
+</div>
+</body></html>
