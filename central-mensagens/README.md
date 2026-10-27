@@ -39,8 +39,8 @@
    ```
 3. **Baixe o projeto:**
    ```bash
-   git clone https://github.com/gilsonbolivar-maker/documentos-.git
-   cd documentos-/central-mensagens
+   git clone -b central-mensagens https://github.com/gilsonbolivar-maker/Documentos-.git
+   cd Documentos-/central-mensagens
    ```
 4. **Configure:**
    ```bash
