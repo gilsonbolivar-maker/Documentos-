@@ -1,0 +1,47 @@
+# Central de Mensagens — WhatsApp + Messenger + Signal num app só.
+# Antes de subir, rode ./setup.sh (ele gera as configurações).
+
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/synapse:/data
+
+  whatsapp:
+    image: dock.mau.dev/mautrix/whatsapp:latest
+    restart: unless-stopped
+    depends_on: [synapse]
+    volumes:
+      - ./data/whatsapp:/data
+
+  meta:
+    image: dock.mau.dev/mautrix/meta:latest
+    restart: unless-stopped
+    depends_on: [synapse]
+    volumes:
+      - ./data/meta:/data
+
+  signal:
+    image: dock.mau.dev/mautrix/signal:latest
+    restart: unless-stopped
+    depends_on: [synapse]
+    volumes:
+      - ./data/signal:/data
+
+  element:
+    image: vectorim/element-web:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/element/config.json:/app/config.json:ro
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./data/caddy:/data

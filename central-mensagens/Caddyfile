@@ -1,0 +1,12 @@
+# HTTPS automático (Let's Encrypt) para o domínio definido no .env
+{$DOMAIN} {
+	handle /_matrix/* {
+		reverse_proxy synapse:8008
+	}
+	handle /_synapse/client/* {
+		reverse_proxy synapse:8008
+	}
+	handle {
+		reverse_proxy element:80
+	}
+}
