@@ -1,5 +1,5 @@
 // Cache do app para funcionar offline. Mude a versão a cada atualização.
-const CACHE = 'troca-turno-v2';
+const CACHE = 'troca-turno-v3';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './vendor/jspdf.umd.min.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
@@ -9,7 +9,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => k.startsWith('troca-turno-') && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 
@@ -17,6 +17,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
+  if (new URL(req.url).pathname.startsWith('/playlist/')) return; // app da playlist tem SW próprio
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then(r => {
       const copy = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', copy)); return r;

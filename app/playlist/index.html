@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Playlist da Fernanda</title>
+<meta name="theme-color" content="#b0306a">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Playlist">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#fbf6f8;--card:#fff;--ink:#2b2230;--muted:#776a7c;--line:#ecdfe6;--accent:#b0306a;--accent-soft:#fbe4ef;--ok:#1f7a4d}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,textarea{font:inherit;color:inherit}
+header{background:linear-gradient(135deg,#d9467d,#7a2a9c);color:#fff;padding:calc(18px + env(safe-area-inset-top,0px)) 16px 18px}
+header h1{margin:0;font-size:22px}
+header p{margin:4px 0 0;opacity:.92;font-size:14px}
+main{max-width:720px;margin:0 auto;padding:12px 16px calc(110px + env(safe-area-inset-bottom,0px))}
+.search{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 8px}
+.search input{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+h2{font-size:16px;margin:18px 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+h2 small{font-weight:400;color:var(--muted);font-size:13px}
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.song{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.song:first-child{border-top:0}
+.pick{flex:1;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left;cursor:pointer;min-width:0}
+.box{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid #cdbac5;display:grid;place-items:center;font-size:15px;color:#fff}
+.song.on .box{background:var(--accent);border-color:var(--accent)}
+.song.on{background:var(--accent-soft)}
+.t{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.play{flex:none;text-decoration:none;font-size:12px;color:var(--accent);border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.row{display:flex;gap:8px}
+.row input{flex:1;min-width:0}
+.card input,.card textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.card textarea{min-height:70px;resize:vertical;margin-top:8px}
+.btn{border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--line)}
+.empty{color:var(--muted);text-align:center;padding:20px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(60,20,50,.08)}
+.bar .in{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:8px}
+.count{flex:1;font-size:14px}
+.count b{font-size:18px;color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#2b2230;color:#fff;padding:8px 14px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.hint{color:var(--muted);font-size:13px;margin:6px 0 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎶 Playlist da Fernanda</h1>
+  <p>Toque nas músicas que você quer no celular. Quando terminar, toque em <b>Enviar</b>.</p>
+</header>
+
+<main>
+  <div class="search">
+    <input id="q" type="search" placeholder="Buscar música ou artista…" autocomplete="off">
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="catalog"></div>
+
+  <h2>➕ Não achou? Adicione</h2>
+  <div class="card">
+    <div class="row">
+      <input id="newTitle" placeholder="Música">
+      <input id="newArtist" placeholder="Artista">
+      <button class="btn" id="addBtn" type="button">Add</button>
+    </div>
+    <div class="list" id="custom" style="margin-top:8px" hidden></div>
+  </div>
+
+  <h2>💬 Recado</h2>
+  <div class="card">
+    <input id="artists" placeholder="Cantores/bandas que você mais gosta">
+    <textarea id="notes" placeholder="Algo mais? (ex.: estilo que gosta, músicas para dirigir, para relaxar…)"></textarea>
+    <p class="hint">Suas escolhas ficam salvas neste celular, pode voltar depois.</p>
+  </div>
+</main>
+
+<div class="bar"><div class="in">
+  <div class="count"><b id="n">0</b> escolhidas</div>
+  <button class="btn ghost" id="copyBtn" type="button">Copiar</button>
+  <button class="btn" id="sendBtn" type="button">Enviar 📲</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATALOG = {
+  "MPB": [
+    ["Garota de Ipanema","Tom Jobim & Vinicius de Moraes"],["Aquarela","Toquinho"],["Velha Infância","Tribalistas"],
+    ["Ainda Bem","Marisa Monte"],["Amor I Love You","Marisa Monte"],["Sozinho","Caetano Veloso"],["Oceano","Djavan"],
+    ["Flor de Lis","Djavan"],["Como Nossos Pais","Elis Regina"],["Anunciação","Alceu Valença"],
+    ["Tocando em Frente","Almir Sater"],["Trem-Bala","Ana Vilela"]
+  ],
+  "Sertanejo": [
+    ["Evidências","Chitãozinho & Xororó"],["Infiel","Marília Mendonça"],["Todo Mundo Vai Sofrer","Marília Mendonça"],
+    ["Cuida Bem Dela","Henrique & Juliano"],["Liberdade Provisória","Henrique & Juliano"],["Leilão","César Menotti & Fabiano"],
+    ["Notificação Preferida","Zé Neto & Cristiano"],["Largado às Traças","Zé Neto & Cristiano"],["Seu Astral","Jorge & Mateus"],
+    ["Os Anjos Cantam","Jorge & Mateus"],["Batom de Cereja","Israel & Rodolffo"],["É o Amor","Zezé Di Camargo & Luciano"],
+    ["Entre Tapas e Beijos","Leonardo"]
+  ],
+  "Pagode e Samba": [
+    ["Deixa Acontecer","Grupo Revelação"],["Tá Escrito","Grupo Revelação"],["Deixa a Vida Me Levar","Zeca Pagodinho"],
+    ["Cheia de Manias","Raça Negra"],["Essa Tal Liberdade","Só Pra Contrariar"],["Livre pra Voar","Exaltasamba"],
+    ["Pirata e Tesouro","Ferrugem"],["Péssimo Negócio","Dilsinho"],["Até que Durou","Péricles"],
+    ["Assim Você Mata o Papai","Sorriso Maroto"]
+  ],
+  "Pop Nacional": [
+    ["Envolver","Anitta"],["Show das Poderosas","Anitta"],["Maldivas","Ludmilla"],["Pesadão","IZA"],["K.O.","Pabllo Vittar"],
+    ["Amei Te Ver","Tiago Iorc"],["Ouvi Dizer","Melim"],["O Sol","Vitor Kley"],["Trevo (Tu)","Anavitória"],
+    ["Idiota","Jão"],["Por Supuesto","Marina Sena"],["Era uma Vez","Kell Smith"]
+  ],
+  "Rock Nacional": [
+    ["Tempo Perdido","Legião Urbana"],["Pais e Filhos","Legião Urbana"],["Garota Nacional","Skank"],
+    ["Primeiros Erros","Capital Inicial"],["Epitáfio","Titãs"],["Só os Loucos Sabem","Charlie Brown Jr."],
+    ["Lanterna dos Afogados","Os Paralamas do Sucesso"],["Exagerado","Cazuza"],["Como Eu Quero","Kid Abelha"],
+    ["Dias Melhores","Jota Quest"],["Como uma Onda","Lulu Santos"],["Dona","Roupa Nova"]
+  ],
+  "Forró e Nordeste": [
+    ["Asa Branca","Luiz Gonzaga"],["Eu Só Quero um Xodó","Dominguinhos"],["Xote dos Milagres","Falamansa"],
+    ["De Volta pro Aconchego","Elba Ramalho"],["Espumas ao Vento","Flávio José"],["Você Não Vale Nada","Calcinha Preta"],
+    ["Camarote","Wesley Safadão"],["Meu Pedaço de Pecado","João Gomes"]
+  ],
+  "Românticas": [
+    ["Detalhes","Roberto Carlos"],["Alma Gêmea","Fábio Jr."],["Quem de Nós Dois","Ana Carolina"],
+    ["Perfect","Ed Sheeran"],["Just the Way You Are","Bruno Mars"],["Halo","Beyoncé"],
+    ["I Will Always Love You","Whitney Houston"],["My Heart Will Go On","Celine Dion"],["It Must Have Been Love","Roxette"]
+  ],
+  "Gospel": [
+    ["Ressuscita-me","Aline Barros"],["Lugar Secreto","Gabriela Rocha"],["Bondade de Deus","Isaías Saad"],
+    ["Raridade","Anderson Freire"],["Sabor de Mel","Damares"],["Sou Humano","Bruna Karla"],
+    ["Arde Outra Vez","Thalles Roberto"],["500 Graus","Cassiane"],["Erguei as Mãos","Padre Marcelo Rossi"]
+  ],
+  "Internacional": [
+    ["Someone Like You","Adele"],["Yellow","Coldplay"],["Shake It Off","Taylor Swift"],["Levitating","Dua Lipa"],
+    ["Blinding Lights","The Weeknd"],["Flowers","Miley Cyrus"],["As It Was","Harry Styles"],["Hips Don't Lie","Shakira"]
+  ],
+  "Anos 80 e 90": [
+    ["Bohemian Rhapsody","Queen"],["Billie Jean","Michael Jackson"],["Like a Prayer","Madonna"],
+    ["Livin' on a Prayer","Bon Jovi"],["Girls Just Want to Have Fun","Cyndi Lauper"],["I Want It That Way","Backstreet Boys"],
+    ["Wannabe","Spice Girls"],["Sweet Child O' Mine","Guns N' Roses"]
+  ]
+};
+
+const KEY = 'playlist-fernanda-v1';
+const $ = id => document.getElementById(id);
+const idOf = (t, a) => t + ' — ' + a;
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+let state = { picked: [], custom: [], artists: '', notes: '' };
+try { Object.assign(state, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
+const picked = new Set(state.picked);
+let genre = 'Todas';
+
+function save() {
+  state.picked = [...picked];
+  state.artists = $('artists').value;
+  state.notes = $('notes').value;
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  $('n').textContent = picked.size + state.custom.length;
+}
+
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function songRow(t, a, on, extra) {
+  const yt = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(t + ' ' + a);
+  return `<div class="song${on ? ' on' : ''}" data-id="${esc(idOf(t, a))}">
+    <button class="pick" type="button"><span class="box">${on ? '✓' : ''}</span>
+      <span style="min-width:0"><span class="t">${esc(t)}</span><span class="a">${esc(a)}</span></span></button>
+    ${extra || `<a class="play" href="${yt}" target="_blank" rel="noopener">▶ Ouvir</a>`}</div>`;
+}
+
+function renderChips() {
+  const names = ['Todas', '✓ Escolhidas', ...Object.keys(CATALOG)];
+  $('chips').innerHTML = names.map(g => `<button class="chip${g === genre ? ' on' : ''}" type="button">${g}</button>`).join('');
+}
+
+function renderCatalog() {
+  const q = norm($('q').value.trim());
+  let html = '';
+  for (const [g, songs] of Object.entries(CATALOG)) {
+    if (genre !== 'Todas' && genre !== '✓ Escolhidas' && genre !== g) continue;
+    const rows = songs.filter(([t, a]) => {
+      if (genre === '✓ Escolhidas' && !picked.has(idOf(t, a))) return false;
+      return !q || norm(t + ' ' + a).includes(q);
+    });
+    if (!rows.length) continue;
+    const n = songs.filter(([t, a]) => picked.has(idOf(t, a))).length;
+    html += `<h2>${g} <small>${n ? n + ' escolhida' + (n > 1 ? 's' : '') : ''}</small></h2>
+      <div class="list">${rows.map(([t, a]) => songRow(t, a, picked.has(idOf(t, a)))).join('')}</div>`;
+  }
+  $('catalog').innerHTML = html || '<p class="empty">Nada encontrado. Adicione abaixo 👇</p>';
+}
+
+function renderCustom() {
+  $('custom').hidden = !state.custom.length;
+  $('custom').innerHTML = state.custom.map(([t, a], i) =>
+    songRow(t, a || '—', true, `<button class="play" type="button" data-del="${i}">✕ Remover</button>`)).join('');
+}
+
+function buildText() {
+  const lines = ['🎶 *Playlist da Fernanda*', ''];
+  for (const [g, songs] of Object.entries(CATALOG)) {
+    const sel = songs.filter(([t, a]) => picked.has(idOf(t, a)));
+    if (!sel.length) continue;
+    lines.push('*' + g + '*');
+    sel.forEach(([t, a]) => lines.push('• ' + t + ' — ' + a));
+    lines.push('');
+  }
+  if (state.custom.length) {
+    lines.push('*Pedidos extras*');
+    state.custom.forEach(([t, a]) => lines.push('• ' + t + (a ? ' — ' + a : '')));
+    lines.push('');
+  }
+  const artists = $('artists').value.trim(), notes = $('notes').value.trim();
+  if (artists) lines.push('⭐ Artistas favoritos: ' + artists);
+  if (notes) lines.push('💬 ' + notes);
+  lines.push('', 'Total: ' + (picked.size + state.custom.length) + ' músicas');
+  return lines.join('\n');
+}
+
+function toast(msg) {
+  $('toast').textContent = msg; $('toast').classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => $('toast').classList.remove('show'), 1800);
+}
+
+$('catalog').addEventListener('click', e => {
+  const btn = e.target.closest('.pick'); if (!btn) return;
+  const id = btn.parentElement.dataset.id;
+  picked.has(id) ? picked.delete(id) : picked.add(id);
+  save(); renderCatalog();
+});
+
+$('chips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if (!c) return;
+  genre = c.textContent; renderChips(); renderCatalog();
+});
+
+$('q').addEventListener('input', renderCatalog);
+$('artists').addEventListener('input', save);
+$('notes').addEventListener('input', save);
+
+$('addBtn').addEventListener('click', () => {
+  const t = $('newTitle').value.trim(), a = $('newArtist').value.trim();
+  if (!t) { $('newTitle').focus(); return; }
+  state.custom.push([t, a]);
+  $('newTitle').value = ''; $('newArtist').value = '';
+  save(); renderCustom(); toast('Adicionada ✓');
+});
+
+$('custom').addEventListener('click', e => {
+  const d = e.target.closest('[data-del]'); if (!d) return;
+  state.custom.splice(+d.dataset.del, 1); save(); renderCustom();
+});
+
+$('copyBtn').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(buildText()); toast('Lista copiada ✓'); }
+  catch (e) { toast('Não foi possível copiar'); }
+});
+
+$('sendBtn').addEventListener('click', async () => {
+  if (!picked.size && !state.custom.length) { toast('Escolha pelo menos uma música'); return; }
+  const text = buildText();
+  if (navigator.share) {
+    try { await navigator.share({ text }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  location.href = 'https://wa.me/?text=' + encodeURIComponent(text);
+});
+
+$('artists').value = state.artists || '';
+$('notes').value = state.notes || '';
+renderChips(); renderCatalog(); renderCustom(); save();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
