@@ -39,7 +39,7 @@ docker compose up -d
 echo ">> 6/6 Criando seu usuário..."
 SENHA_FILE=data/senha-inicial.txt
 if [ ! -f "$SENHA_FILE" ]; then
-	SENHA=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
+	SENHA=$(head -c 12 /dev/urandom | base64 | tr -dc 'A-Za-z0-9')
 	for i in $(seq 1 30); do
 		if docker compose exec -T synapse register_new_matrix_user \
 			-c /data/homeserver.yaml -u "$ADMIN" -p "$SENHA" -a http://localhost:8008 >/dev/null 2>&1; then
